@@ -1,0 +1,103 @@
+name: dream_startalk
+description: 拾梦·星语 — 沉浸式 AI 角色扮演，支持多角色对话与世界观构建。
+version: 2.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+    
+  # UI
+  flutter_animate: ^4.3.0
+  google_fonts: ^6.1.0
+  flutter_svg: ^2.0.9
+  cached_network_image: ^3.3.0
+  shimmer: ^3.0.0
+  tdesign_flutter: ^0.1.7
+  animations: ^2.0.0
+  flutter_spinkit: 5.1.0
+  lottie: ^3.1.0
+  flutter_slidable: ^3.1.0
+  
+  # State Management
+  flutter_riverpod: ^2.4.9
+  riverpod_annotation: ^2.3.3
+  
+  # Routing
+  go_router: ^14.2.0
+  
+  # Share
+  share_plus: ^9.0.0
+  
+  # Audio
+  audioplayers: ^5.2.1
+  
+  # Local Storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  sqflite: ^2.3.0
+  path_provider: ^2.1.2
+  flutter_secure_storage: ^9.0.0
+  
+  # Network
+  dio: ^5.4.0
+  web_socket_channel: ^2.4.0
+  
+  # Image
+  image_picker: ^1.0.7
+  image_cropper: ^5.0.1
+  flutter_image_compress: ^2.1.0
+  
+  # Utils
+  uuid: ^4.3.3
+  intl: ^0.19.0
+  json_annotation: ^4.8.1
+  freezed_annotation: ^2.4.1
+  equatable: ^2.0.5
+  collection: ^1.18.0
+  
+  # File
+  file_picker: ^6.1.1
+  path: ^1.8.3
+  
+  # Crypto
+  crypto: ^3.0.3
+  
+  # Logging
+  logger: ^2.0.2+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+    
+  # Code Generation
+  build_runner: ^2.4.8
+  json_serializable: ^6.7.1
+  freezed: ^2.4.7
+  riverpod_generator: ^2.3.9
+  
+  # Lint
+  flutter_lints: ^3.0.1
+  very_good_analysis: ^5.1.0
+  
+  # Test
+  mockito: ^5.4.4
+  mocktail: ^1.0.2
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    
+  fonts:
+    - family: NotoSansSC
+      fonts:
+        - asset: assets/fonts/NotoSansSC-Regular.ttf
+        - asset: assets/fonts/NotoSansSC-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/NotoSansSC-Bold.ttf
+          weight: 700

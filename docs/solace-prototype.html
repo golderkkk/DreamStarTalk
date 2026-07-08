@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solace Design System — AI Chat Studio</title>
+<style>
+/* ============================================
+   SOLACE DESIGN SYSTEM — Light, Warm, Literary
+   与 Aurora(暗色紫罗兰) 截然不同的浅色暖调方案
+   ============================================ */
+
+/* --- Design Tokens --- */
+:root {
+  /* Background Hierarchy — 温暖纸质感 */
+  --bg-canvas: #F7F5F0;       /* 画布底色：暖白 */
+  --bg-surface: #FFFFFF;       /* 表面：纯白 */
+  --bg-elevated: #FFFFFF;      /* 卡片浮起 */
+  --bg-subtle: #F0EDE6;        /* 微妙暖灰 */
+  --bg-sunken: #ECE8E0;        /* 凹陷区域 */
+  --bg-hover: #F5F2EC;         /* 悬停态 */
+
+  /* Primary — Teal (冷静、清新、现代) */
+  --primary: #0D9488;
+  --primary-hover: #0F766E;
+  --primary-active: #115E54;
+  --primary-soft: #CCFBF1;
+  --primary-faint: #F0FDFA;
+
+  /* Accent — Coral (温暖、情感、活力) */
+  --coral: #FB7185;
+  --coral-soft: #FFE4E6;
+  --coral-faint: #FFF1F2;
+
+  /* Accent — Amber (点缀、高亮) */
+  --amber: #F59E0B;
+  --amber-soft: #FEF3C7;
+
+  /* Accent — Violet (AI 专属标识) */
+  --violet: #8B5CF6;
+  --violet-soft: #EDE9FE;
+
+  /* Text */
+  --text-primary: #1C1917;     /* 暖黑 */
+  --text-secondary: #57534E;   /* 暖灰 */
+  --text-tertiary: #A8A29E;    /* 浅暖灰 */
+  --text-inverse: #FFFFFF;
+  --text-on-primary: #FFFFFF;
+  --text-link: #0D9488;
+
+  /* Border */
+  --border-light: #F0EDE6;
+  --border-default: #E7E5E0;
+  --border-strong: #D6D3CE;
+  --border-focus: #0D9488;
+
+  /* Shadow — 暖色调阴影 */
+  --shadow-xs: 0 1px 2px rgba(60, 50, 35, 0.04);
+  --shadow-sm: 0 2px 4px rgba(60, 50, 35, 0.06), 0 1px 2px rgba(60, 50, 35, 0.04);
+  --shadow-md: 0 4px 12px rgba(60, 50, 35, 0.08), 0 2px 4px rgba(60, 50, 35, 0.04);
+  --shadow-lg: 0 8px 24px rgba(60, 50, 35, 0.10), 0 4px 8px rgba(60, 50, 35, 0.06);
+  --shadow-xl: 0 16px 48px rgba(60, 50, 35, 0.12), 0 8px 16px rgba(60, 50, 35, 0.08);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-sans: -apple-system, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --font-serif: 'Georgia', 'Songti SC', 'Noto Serif SC', serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --- Reset --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+/* --- Page Layout --- */
+.page { display: none; min-height: 100vh; }
+.page.active { display: flex; flex-direction: column; }
+
+/* --- Top Tab Bar --- */
+.top-bar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px;
+  background: rgba(247, 245, 240, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-light);
+}
+.top-bar-brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-serif);
+  font-size: 18px; font-weight: 700;
+  color: var(--text-primary);
+}
+.brand-dot {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, var(--primary), var(--coral));
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 14px; font-weight: 700;
+}
+.top-bar-tabs {
+  display: flex; gap: 4px;
+  background: var(--bg-subtle);
+  padding: 4px;
+  border-radius: var(--radius-full);
+}
+.top-tab {
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-out);
+  border: none; background: transparent;
+  white-space: nowrap;
+}
+.top-tab:hover { color: var(--text-primary); }
+.top-tab.active {
+  background: var(--bg-surface);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+.top-bar-meta {
+  font-size: 12px; color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+/* ============================================
+   MOBILE VIEW
+   ============================================ */
+.mobile-stage {
+  flex: 1;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 32px 16px;
+  background:
+    radial-gradient(ellipse at 30% 0%, rgba(13, 148, 136, 0.04), transparent 50%),
+    radial-gradient(ellipse at 70% 100%, rgba(251, 113, 133, 0.04), transparent 50%),
+    var(--bg-canvas);
+}
+.phone-frame {
+  width: 375px;
+  height: 760px;
+  background: var(--bg-surface);
+  border-radius: 44px;
+  box-shadow:
+    var(--shadow-xl),
+    0 0 0 8px #2A2520,
+    0 0 0 9px #3A3530;
+  overflow: hidden;
+  position: relative;
+  display: flex; flex-direction: column;
+}
+.phone-notch {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 28px;
+  background: #2A2520;
+  border-radius: 0 0 18px 18px;
+  z-index: 50;
+}
+.phone-screen {
+  flex: 1; overflow: hidden; position: relative;
+  display: flex; flex-direction: column;
+}
+.phone-screen-content {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+}
+.phone-screen-content::-webkit-scrollbar { display: none; }
+
+/* --- Status Bar --- */
+.status-bar {
+  height: 44px; padding: 0 24px 0 28px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding-bottom: 6px;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+.status-icons { display: flex; gap: 5px; align-items: center; }
+
+/* --- Screen Container --- */
+.screen { display: none; flex-direction: column; min-height: 100%; }
+.screen.active { display: flex; }
+
+/* --- App Header (Mobile) --- */
+.app-header {
+  padding: 8px 20px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.app-header-title {
+  font-family: var(--font-serif);
+  font-size: 28px; font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+.app-header-actions { display: flex; gap: 8px; }
+.icon-btn {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--bg-subtle);
+  border: none; cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  color: var(--text-secondary);
+}
+.icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+/* --- Search Bar --- */
+.search-bar {
+  margin: 0 20px 12px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-full);
+  border: 1.5px solid transparent;
+  transition: border-color 0.2s;
+}
+.search-bar:focus-within { border-color: var(--primary-soft); }
+.search-bar svg { width: 16px; height: 16px; color: var(--text-tertiary); flex-shrink: 0; }
+.search-bar input {
+  border: none; background: transparent; outline: none;
+  font-size: 14px; color: var(--text-primary);
+  flex: 1; font-family: var(--font-sans);
+}
+.search-bar input::placeholder { color: var(--text-tertiary); }
+
+/* --- Filter Chips --- */
+filter-chips { display: flex; gap: 8px; padding: 0 20px 12px; overflow-x: auto; }
+.filter-chips::-webkit-scrollbar { display: none; }
+.chip {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  border: 1.5px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+.chip:hover { border-color: var(--primary); color: var(--primary); }
+.chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* --- Time Group Label --- */
+.time-group {
+  padding: 16px 20px 6px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-tertiary);
+}
+
+/* --- Conversation Item --- */
+.conv-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.conv-item:hover { background: var(--bg-hover); }
+.conv-avatar {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-lg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-xs);
+  position: relative;
+}
+.conv-avatar.multi::after {
+  content: '';
+  position: absolute; bottom: -2px; right: -2px;
+  width: 18px; height: 18px;
+  background: var(--coral);
+  border: 2px solid var(--bg-surface);
+  border-radius: var(--radius-full);
+}
+.conv-body { flex: 1; min-width: 0; }
+.conv-top-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.conv-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.conv-time { font-size: 11px; color: var(--text-tertiary); flex-shrink: 0; }
+.conv-preview {
+  font-size: 13px; color: var(--text-secondary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  margin-top: 2px;
+}
+.conv-badge {
+  position: absolute; top: 50%; right: 20px; transform: translateY(-50%);
+  background: var(--coral); color: white;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: var(--radius-full);
+  min-width: 18px; text-align: center;
+}
+
+/* --- FAB --- */
+.fab {
+  position: absolute; bottom: 84px; right: 20px;
+  width: 52px; height: 52px;
+  background: var(--primary);
+  border-radius: var(--radius-lg);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.35);
+  border: none; cursor: pointer;
+  transition: all 0.2s var(--ease-spring);
+  z-index: 20;
+  color: white;
+}
+.fab:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(13, 148, 136, 0.45); }
+.fab:active { transform: scale(0.95); }
+.fab svg { width: 24px; height: 24px; }
+
+/* --- Bottom Navigation --- */
+.bottom-nav {
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 6px 12px 18px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-out);
+  border: none; background: transparent;
+  position: relative;
+}
+.nav-item svg { width: 22px; height: 22px; color: var(--text-tertiary); transition: color 0.2s; }
+.nav-item span { font-size: 10px; font-weight: 600; color: var(--text-tertiary); transition: color 0.2s; }
+.nav-item.active { background: var(--primary-soft); }
+.nav-item.active svg, .nav-item.active span { color: var(--primary); }
+
+/* --- Chat Screen --- */
+.chat-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 16px 10px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-surface);
+  flex-shrink: 0;
+}
+.chat-back-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-full);
+  background: transparent; border: none; cursor: pointer;
+  color: var(--text-secondary);
+}
+.chat-back-btn:hover { background: var(--bg-subtle); }
+.chat-avatar {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: white;
+  flex-shrink: 0;
+}
+.chat-header-info { flex: 1; min-width: 0; }
+.chat-header-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.chat-header-status { font-size: 11px; color: var(--primary); display: flex; align-items: center; gap: 4px; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+
+/* --- Chat Messages --- */
+.chat-messages { padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 14px; }
+.msg-date-sep {
+  text-align: center; font-size: 11px; color: var(--text-tertiary);
+  padding: 4px 0; font-weight: 500;
+}
+.msg-row { display: flex; gap: 8px; max-width: 85%; }
+.msg-row.ai { align-self: flex-start; }
+.msg-row.user { align-self: flex-end; flex-direction: row-reverse; }
+
+.msg-avatar {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: white;
+  flex-shrink: 0; align-self: flex-end;
+}
+.msg-bubble {
+  padding: 10px 14px;
+  font-size: 14px; line-height: 1.55;
+  border-radius: var(--radius-lg);
+  word-break: break-word;
+}
+.msg-row.ai .msg-bubble {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-bottom-left-radius: 4px;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xs);
+}
+.msg-row.user .msg-bubble {
+  background: linear-gradient(135deg, var(--primary), #14B8A6);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.msg-bubble em { font-style: italic; color: var(--text-secondary); }
+.msg-row.user .msg-bubble em { color: rgba(255,255,255,0.85); }
+.msg-bubble q { quotes: '"' '"'; color: var(--primary); font-weight: 500; }
+.msg-row.user .msg-bubble q { color: rgba(255,255,255,0.95); }
+
+.msg-actions {
+  display: flex; gap: 4px; margin-top: 4px;
+  opacity: 0; transition: opacity 0.2s;
+}
+.msg-row:hover .msg-actions { opacity: 1; }
+.msg-action-btn {
+  padding: 4px 8px;
+  font-size: 11px; font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: transparent; border: none; cursor: pointer;
+  color: var(--text-tertiary);
+  display: flex; align-items: center; gap: 3px;
+}
+.msg-action-btn:hover { background: var(--bg-subtle); color: var(--primary); }
+.msg-action-btn svg { width: 13px; height: 13px; }
+
+.quick-replies { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.quick-reply {
+  padding: 5px 12px;
+  font-size: 12px; font-weight: 500;
+  border-radius: var(--radius-full);
+  background: var(--primary-faint);
+  border: 1px solid var(--primary-soft);
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.quick-reply:hover { background: var(--primary-soft); }
+
+/* --- Typing Indicator --- */
+.typing-indicator {
+  display: flex; align-items: center; gap: 4px;
+  padding: 12px 16px;
+}
+.typing-dots { display: flex; gap: 4px; }
+.typing-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: typing-bounce 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+.typing-text { font-size: 12px; color: var(--text-tertiary); margin-left: 4px; }
+
+/* --- Chat Input --- */
+.chat-input-bar {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 10px 16px 18px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-light);
+  display: flex; align-items: flex-end; gap: 8px;
+  z-index: 30;
+}
+.chat-input-attach {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--bg-subtle); border: none; cursor: pointer;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.chat-input-attach:hover { background: var(--primary-soft); color: var(--primary); }
+.chat-input-field {
+  flex: 1;
+  padding: 9px 14px;
+  background: var(--bg-subtle);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-xl);
+  font-size: 14px; color: var(--text-primary);
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color 0.2s;
+  max-height: 80px;
+  resize: none;
+}
+.chat-input-field:focus { border-color: var(--primary-soft); background: var(--bg-surface); }
+.chat-input-send {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--primary); border: none; cursor: pointer;
+  color: white; flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+  transition: all 0.2s var(--ease-spring);
+}
+.chat-input-send:hover { transform: scale(1.05); }
+.chat-input-send:disabled { background: var(--bg-sunken); box-shadow: none; cursor: not-allowed; }
+
+/* --- Character Screen --- */
+.char-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 4px 20px 100px;
+}
+.char-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-out);
+}
+.char-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-soft);
+}
+.char-card-img {
+  width: 100%; aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; font-weight: 700; color: white;
+}
+.char-card-body { padding: 10px 12px 12px; }
+.char-card-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.char-card-desc {
+  font-size: 11px; color: var(--text-tertiary);
+  margin-top: 2px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.char-card-tags { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.char-tag {
+  font-size: 10px; font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+}
+
+/* --- Settings Screen --- */
+.settings-section { padding: 0 20px; }
+.settings-group {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-xs);
+}
+.settings-group-title {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-tertiary);
+  padding: 16px 20px 6px;
+}
+.settings-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-light);
+}
+.settings-item:last-child { border-bottom: none; }
+.settings-item:hover { background: var(--bg-hover); }
+.settings-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.settings-icon svg { width: 16px; height: 16px; }
+.settings-body { flex: 1; }
+.settings-label { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.settings-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+.settings-value { font-size: 13px; color: var(--text-tertiary); }
+.settings-chevron { color: var(--text-tertiary); }
+
+/* --- Toggle Switch --- */
+.toggle {
+  width: 44px; height: 26px;
+  border-radius: var(--radius-full);
+  background: var(--bg-sunken);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.25s;
+  border: none;
+}
+.toggle.on { background: var(--primary); }
+.toggle-knob {
+  position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s var(--ease-spring);
+}
+.toggle.on .toggle-knob { transform: translateX(18px); }
+
+/* --- Profile Card --- */
+.profile-card {
+  display: flex; align-items: center; gap: 14px;
+  margin: 8px 20px 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--primary-faint), var(--coral-faint));
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+}
+.profile-avatar {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--primary), var(--coral));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: white;
+  box-shadow: var(--shadow-sm);
+}
+.profile-info { flex: 1; }
+.profile-name { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+.profile-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ============================================
+   DESKTOP VIEW
+   ============================================ */
+.desktop-stage {
+  flex: 1;
+  padding: 24px;
+  background: var(--bg-canvas);
+  display: flex; justify-content: center;
+}
+.desktop-frame {
+  width: 100%; max-width: 1200px;
+  height: 720px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  display: flex;
+}
+.desktop-sidebar {
+  width: 64px;
+  background: var(--bg-subtle);
+  border-right: 1px solid var(--border-light);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 16px 0;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.desktop-nav-item {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-tertiary);
+  border: none; background: transparent;
+}
+.desktop-nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.desktop-nav-item.active {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.desktop-nav-item svg { width: 22px; height: 22px; }
+.desktop-nav-spacer { flex: 1; }
+
+.desktop-list-panel {
+  width: 320px;
+  border-right: 1px solid var(--border-light);
+  display: flex; flex-direction: column;
+  flex-shrink: 0;
+}
+.desktop-list-header {
+  padding: 20px 20px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.desktop-list-title {
+  font-family: var(--font-serif);
+  font-size: 22px; font-weight: 700;
+  color: var(--text-primary);
+}
+.desktop-list-search {
+  margin: 0 16px 8px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-full);
+}
+.desktop-list-search svg { width: 15px; height: 15px; color: var(--text-tertiary); }
+.desktop-list-search input {
+  border: none; background: transparent; outline: none;
+  font-size: 13px; color: var(--text-primary); flex: 1;
+  font-family: var(--font-sans);
+}
+.desktop-list-items { flex: 1; overflow-y: auto; }
+.desktop-list-items::-webkit-scrollbar { width: 4px; }
+.desktop-list-items::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+
+.desktop-chat-panel {
+  flex: 1;
+  display: flex; flex-direction: column;
+  background: var(--bg-canvas);
+}
+.desktop-chat-header {
+  padding: 12px 24px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-surface);
+}
+.desktop-chat-messages {
+  flex: 1; overflow-y: auto;
+  padding: 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.desktop-chat-messages::-webkit-scrollbar { width: 4px; }
+.desktop-chat-messages::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+.desktop-chat-input {
+  padding: 12px 24px 20px;
+  border-top: 1px solid var(--border-light);
+  background: var(--bg-surface);
+  display: flex; align-items: flex-end; gap: 10px;
+}
+.desktop-chat-input textarea {
+  flex: 1;
+  padding: 10px 16px;
+  background: var(--bg-subtle);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-xl);
+  font-size: 14px; color: var(--text-primary);
+  font-family: var(--font-sans);
+  outline: none; resize: none;
+  max-height: 100px;
+  transition: border-color 0.2s;
+}
+.desktop-chat-input textarea:focus { border-color: var(--primary-soft); background: var(--bg-surface); }
+
+/* ============================================
+   DESIGN SYSTEM VIEW
+   ============================================ */
+.ds-stage {
+  flex: 1;
+  padding: 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+.ds-hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.ds-hero h1 {
+  font-family: var(--font-serif);
+  font-size: 42px; font-weight: 700;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--primary), var(--coral));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.ds-hero p {
+  font-size: 15px; color: var(--text-secondary);
+  margin-top: 8px;
+}
+.ds-section { margin-bottom: 40px; }
+.ds-section-title {
+  font-family: var(--font-serif);
+  font-size: 20px; font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-light);
+}
+.ds-color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+.ds-color-card {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-xs);
+}
+.ds-color-swatch { height: 80px; }
+.ds-color-info { padding: 8px 12px; }
+.ds-color-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.ds-color-hex { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono); }
+
+.ds-typo-row {
+  display: flex; align-items: baseline; gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.ds-typo-label { width: 80px; font-size: 11px; color: var(--text-tertiary); font-weight: 600; flex-shrink: 0; }
+.ds-typo-sample { color: var(--text-primary); }
+
+.ds-comp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+.ds-comp-card {
+  padding: 20px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-xs);
+}
+.ds-comp-label { font-size: 11px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+/* --- Buttons (Design System Demo) --- */
+.ds-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px; font-weight: 600;
+  border-radius: var(--radius-full);
+  border: none; cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  font-family: var(--font-sans);
+}
+.ds-btn-primary { background: var(--primary); color: white; }
+.ds-btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,148,136,0.3); }
+.ds-btn-coral { background: var(--coral); color: white; }
+.ds-btn-coral:hover { background: #F43F5E; }
+.ds-btn-ghost { background: var(--bg-subtle); color: var(--text-secondary); }
+.ds-btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+.ds-btn-outline { background: transparent; border: 1.5px solid var(--border-strong); color: var(--text-primary); }
+.ds-btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+/* --- DS Badges --- */
+.ds-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px;
+  font-size: 11px; font-weight: 600;
+  border-radius: var(--radius-full);
+}
+.ds-badge-teal { background: var(--primary-soft); color: var(--primary); }
+.ds-badge-coral { background: var(--coral-soft); color: #E11D48; }
+.ds-badge-amber { background: var(--amber-soft); color: #B45309; }
+.ds-badge-violet { background: var(--violet-soft); color: var(--violet); }
+.ds-badge-gray { background: var(--bg-subtle); color: var(--text-secondary); }
+
+/* --- DS Principle Cards --- */
+.ds-principle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.ds-principle {
+  padding: 20px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-xs);
+}
+.ds-principle-icon {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+.ds-principle h4 { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.ds-principle p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.5; }
+
+/* --- Screen dots (mobile navigation) --- */
+.screen-dots {
+  display: flex; justify-content: center; gap: 8px;
+  padding: 16px 0;
+}
+.screen-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  cursor: pointer;
+  transition: all 0.25s var(--ease-out);
+  border: none; padding: 0;
+}
+.screen-dot.active { width: 24px; border-radius: 4px; background: var(--primary); }
+</style>
+</head>
+<body>
+
+<!-- ==================== TOP BAR ==================== -->
+<div class="top-bar">
+  <div class="top-bar-brand">
+    <div class="brand-dot">S</div>
+    <span>Solace</span>
+  </div>
+  <div class="top-bar-tabs">
+    <button class="top-tab active" onclick="switchView('mobile')">移动端</button>
+    <button class="top-tab" onclick="switchView('desktop')">桌面端</button>
+    <button class="top-tab" onclick="switchView('design')">设计系统</button>
+  </div>
+  <div class="top-bar-meta">方案 B · 浅色暖调</div>
+</div>
+
+<!-- ==================== MOBILE VIEW ==================== -->
+<div class="page active" id="page-mobile">
+  <div class="mobile-stage">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M1 4h2v6H1zM5 2h2v8H5zM9 0h2v10H9zM13 0h2v10h-2z" opacity="0.4"/><path d="M1 4h2v6H1zM5 2h2v8H5zM9 0h2v10H9z"/></svg>
+            <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><path d="M7 0C4.5 0 2.2 1 0.5 2.5l1 1C3 2.2 4.9 1.5 7 1.5s4 0.7 5.5 2l1-1C11.8 1 9.5 0 7 0zM7 3C5.3 3 3.8 3.7 2.7 4.7l1 1C4.5 5 5.7 4.5 7 4.5s2.5 0.5 3.3 1.2l1-1C10.2 3.7 8.7 3 7 3zM7 6c-0.8 0-1.6 0.3-2.2 0.8l1 1C6.2 7.3 6.6 7 7 7s0.8 0.3 1.2 0.8l1-1C8.6 6.3 7.8 6 7 6z"/></svg>
+            <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x="0.5" y="0.5" width="20" height="10" rx="2.5" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="16" height="7" rx="1" fill="currentColor"/><rect x="21" y="3.5" width="1.5" height="4" rx="0.5" fill="currentColor" opacity="0.4"/></svg>
+          </div>
+        </div>
+
+        <!-- Screen Content -->
+        <div class="phone-screen-content">
+
+          <!-- ===== SCREEN 1: CONVERSATIONS ===== -->
+          <div class="screen active" id="screen-1">
+            <div class="app-header">
+              <div class="app-header-title">对话</div>
+              <div class="app-header-actions">
+                <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></button>
+                <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+              </div>
+            </div>
+
+            <div class="search-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" placeholder="搜索对话或角色..." />
+            </div>
+
+            <div class="filter-chips">
+              <button class="chip active">全部</button>
+              <button class="chip">多角色</button>
+              <button class="chip">未读</button>
+              <button class="chip">已置顶</button>
+            </div>
+
+            <div class="time-group">今天</div>
+
+            <div class="conv-item">
+              <div class="conv-avatar" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+              <div class="conv-body">
+                <div class="conv-top-row">
+                  <span class="conv-name">夜阑·古风剑客</span>
+                  <span class="conv-time">14:32</span>
+                </div>
+                <div class="conv-preview"><em>*轻轻拔剑* 你...究竟是什么人？</em></div>
+              </div>
+              <div class="conv-badge">3</div>
+            </div>
+
+            <div class="conv-item">
+              <div class="conv-avatar multi" style="background: linear-gradient(135deg, #FB7185, #F43F5E);">艾</div>
+              <div class="conv-body">
+                <div class="conv-top-row">
+                  <span class="conv-name">艾莉娅 & 林恩</span>
+                  <span class="conv-time">13:15</span>
+                </div>
+                <div class="conv-preview">林恩：这个计划太冒险了...</div>
+              </div>
+            </div>
+
+            <div class="conv-item">
+              <div class="conv-avatar" style="background: linear-gradient(135deg, #8B5CF6, #A78BFA);">K</div>
+              <div class="conv-body">
+                <div class="conv-top-row">
+                  <span class="conv-name">K-07 仿生侦探</span>
+                  <span class="conv-time">11:08</span>
+                </div>
+                <div class="conv-preview">案件分析已完成，嫌疑人锁定在三人之中。</div>
+              </div>
+            </div>
+
+            <div class="time-group">昨天</div>
+
+            <div class="conv-item">
+              <div class="conv-avatar" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">苏</div>
+              <div class="conv-body">
+                <div class="conv-top-row">
+                  <span class="conv-name">苏菲亚·星辰法师</span>
+                  <span class="conv-time">昨天</span>
+                </div>
+                <div class="conv-preview"><em>*法杖光芒闪烁* 我感应到了古老的魔力...</em></div>
+              </div>
+            </div>
+
+            <div class="conv-item">
+              <div class="conv-avatar" style="background: linear-gradient(135deg, #6366F1, #818CF8);">陆</div>
+              <div class="conv-body">
+                <div class="conv-top-row">
+                  <span class="conv-name">陆远·末世幸存者</span>
+                  <span class="conv-time">昨天</span>
+                </div>
+                <div class="conv-preview">今天的补给站搜刮很顺利，明天往北走。</div>
+              </div>
+            </div>
+
+            <div class="time-group">更早</div>
+
+            <div class="conv-item">
+              <div class="conv-avatar" style="background: linear-gradient(135deg, #EC4899, #F472B6);">樱</div>
+              <div class="conv-body">
+                <div class="conv-top-row">
+                  <span class="conv-name">樱花·校园少女</span>
+                  <span class="conv-time">7月3日</span>
+                </div>
+                <div class="conv-preview">放学后一起去图书馆吧！</div>
+              </div>
+            </div>
+
+            <div style="height: 100px;"></div>
+          </div>
+
+          <!-- ===== SCREEN 2: CHAT ===== -->
+          <div class="screen" id="screen-2">
+            <div class="chat-header">
+              <button class="chat-back-btn" onclick="switchScreen(1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+              <div class="chat-avatar" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+              <div class="chat-header-info">
+                <div class="chat-header-name">夜阑·古风剑客</div>
+                <div class="chat-header-status"><span class="status-dot"></span>在线 · DeepSeek</div>
+              </div>
+              <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
+              <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+            </div>
+
+            <div class="chat-messages">
+              <div class="msg-date-sep">今天 14:20</div>
+
+              <div class="msg-row ai">
+                <div class="msg-avatar" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+                <div>
+                  <div class="msg-bubble">
+                    <em>*月光下，剑身泛起寒光，夜阑缓缓转身，目光如刃*</em><br>
+                    阁下深夜造访，想必不是来赏月的。<br>
+                    <q>说吧，你的来意。</q>
+                  </div>
+                  <div class="msg-actions">
+                    <button class="msg-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5l-7 7 7 7M4 12h16"/></svg>朗读</button>
+                    <button class="msg-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>复制</button>
+                    <button class="msg-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>编辑</button>
+                  </div>
+                  <div class="quick-replies">
+                    <button class="quick-reply">我是来挑战你的</button>
+                    <button class="quick-reply">只是路过</button>
+                    <button class="quick-reply">你认错人了</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="msg-row user">
+                <div class="msg-bubble">
+                  我听说你是江湖第一剑客，特来领教。
+                </div>
+              </div>
+
+              <div class="msg-row ai">
+                <div class="msg-avatar" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+                <div>
+                  <div class="msg-bubble">
+                    <em>*嘴角微扬，剑尖轻指*</em><br>
+                    第一？不过是旁人给的虚名罢了。<br>
+                    <q>但既然你来了，我便不让你白跑一趟。</q>
+                  </div>
+                  <div class="msg-actions">
+                    <button class="msg-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5l-7 7 7 7M4 12h16"/></svg>朗读</button>
+                    <button class="msg-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>复制</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="msg-row ai">
+                <div class="msg-avatar" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+                <div>
+                  <div class="typing-indicator" style="padding: 10px 14px; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); border-bottom-left-radius: 4px;">
+                    <div class="typing-dots">
+                      <div class="typing-dot"></div>
+                      <div class="typing-dot"></div>
+                      <div class="typing-dot"></div>
+                    </div>
+                    <span class="typing-text">正在生成回复...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-input-bar">
+              <button class="chat-input-attach"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+              <textarea class="chat-input-field" rows="1" placeholder="输入消息..."></textarea>
+              <button class="chat-input-send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+            </div>
+          </div>
+
+          <!-- ===== SCREEN 3: CHARACTERS ===== -->
+          <div class="screen" id="screen-3">
+            <div class="app-header">
+              <div class="app-header-title">角色</div>
+              <div class="app-header-actions">
+                <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+                <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+              </div>
+            </div>
+
+            <div class="search-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" placeholder="搜索角色..." />
+            </div>
+
+            <div class="filter-chips">
+              <button class="chip active">全部</button>
+              <button class="chip">奇幻</button>
+              <button class="chip">现代</button>
+              <button class="chip">科幻</button>
+              <button class="chip">校园</button>
+            </div>
+
+            <div class="char-grid">
+              <div class="char-card">
+                <div class="char-card-img" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+                <div class="char-card-body">
+                  <div class="char-card-name">夜阑</div>
+                  <div class="char-card-desc">古风剑客 · 孤傲</div>
+                  <div class="char-card-tags">
+                    <span class="char-tag">奇幻</span>
+                    <span class="char-tag">古风</span>
+                  </div>
+                </div>
+              </div>
+              <div class="char-card">
+                <div class="char-card-img" style="background: linear-gradient(135deg, #FB7185, #F43F5E);">艾</div>
+                <div class="char-card-body">
+                  <div class="char-card-name">艾莉娅</div>
+                  <div class="char-card-desc">精灵游侠 · 机敏</div>
+                  <div class="char-card-tags">
+                    <span class="char-tag">奇幻</span>
+                    <span class="char-tag">精灵</span>
+                  </div>
+                </div>
+              </div>
+              <div class="char-card">
+                <div class="char-card-img" style="background: linear-gradient(135deg, #8B5CF6, #A78BFA);">K</div>
+                <div class="char-card-body">
+                  <div class="char-card-name">K-07</div>
+                  <div class="char-card-desc">仿生侦探 · 冷静</div>
+                  <div class="char-card-tags">
+                    <span class="char-tag">科幻</span>
+                    <span class="char-tag">赛博</span>
+                  </div>
+                </div>
+              </div>
+              <div class="char-card">
+                <div class="char-card-img" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">苏</div>
+                <div class="char-card-body">
+                  <div class="char-card-name">苏菲亚</div>
+                  <div class="char-card-desc">星辰法师 · 神秘</div>
+                  <div class="char-card-tags">
+                    <span class="char-tag">奇幻</span>
+                    <span class="char-tag">法师</span>
+                  </div>
+                </div>
+              </div>
+              <div class="char-card">
+                <div class="char-card-img" style="background: linear-gradient(135deg, #6366F1, #818CF8);">陆</div>
+                <div class="char-card-body">
+                  <div class="char-card-name">陆远</div>
+                  <div class="char-card-desc">末世幸存者 · 坚韧</div>
+                  <div class="char-card-tags">
+                    <span class="char-tag">末日</span>
+                    <span class="char-tag">现代</span>
+                  </div>
+                </div>
+              </div>
+              <div class="char-card">
+                <div class="char-card-img" style="background: linear-gradient(135deg, #EC4899, #F472B6);">樱</div>
+                <div class="char-card-body">
+                  <div class="char-card-name">樱花</div>
+                  <div class="char-card-desc">校园少女 · 活泼</div>
+                  <div class="char-card-tags">
+                    <span class="char-tag">校园</span>
+                    <span class="char-tag">日常</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="height: 100px;"></div>
+          </div>
+
+          <!-- ===== SCREEN 4: SETTINGS ===== -->
+          <div class="screen" id="screen-4">
+            <div class="app-header">
+              <div class="app-header-title">设置</div>
+            </div>
+
+            <div class="profile-card">
+              <div class="profile-avatar">寇</div>
+              <div class="profile-info">
+                <div class="profile-name">寇豆码</div>
+                <div class="profile-desc">已创建 12 个角色 · 28 场对话</div>
+              </div>
+              <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+            </div>
+
+            <div class="settings-section">
+              <div class="settings-group-title">AI 服务</div>
+              <div class="settings-group">
+                <div class="settings-item">
+                  <div class="settings-icon" style="background: var(--primary-soft);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg></div>
+                  <div class="settings-body">
+                    <div class="settings-label">AI 提供商</div>
+                    <div class="settings-sub">DeepSeek · 已连接</div>
+                  </div>
+                  <svg class="settings-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+                <div class="settings-item">
+                  <div class="settings-icon" style="background: var(--violet-soft);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg></div>
+                  <div class="settings-body">
+                    <div class="settings-label">语音合成 (TTS)</div>
+                    <div class="settings-sub">MiMo V2.5 · 9 种音色</div>
+                  </div>
+                  <svg class="settings-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+              </div>
+
+              <div class="settings-group-title">外观</div>
+              <div class="settings-group">
+                <div class="settings-item">
+                  <div class="settings-icon" style="background: var(--amber-soft);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg></div>
+                  <div class="settings-body">
+                    <div class="settings-label">深色模式</div>
+                    <div class="settings-sub">跟随系统</div>
+                  </div>
+                  <button class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></button>
+                </div>
+                <div class="settings-item">
+                  <div class="settings-icon" style="background: var(--coral-soft);"><svg viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="19" cy="12" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="10" cy="18" r="2.5"/><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg></div>
+                  <div class="settings-body">
+                    <div class="settings-label">主题预设</div>
+                    <div class="settings-sub">Solace (默认)</div>
+                  </div>
+                  <svg class="settings-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+              </div>
+
+              <div class="settings-group-title">数据</div>
+              <div class="settings-group">
+                <div class="settings-item">
+                  <div class="settings-icon" style="background: var(--primary-soft);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
+                  <div class="settings-body">
+                    <div class="settings-label">导入角色卡</div>
+                    <div class="settings-sub">PNG / JSON 格式</div>
+                  </div>
+                  <svg class="settings-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+                <div class="settings-item">
+                  <div class="settings-icon" style="background: var(--primary-soft);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+                  <div class="settings-body">
+                    <div class="settings-label">导出全部</div>
+                    <div class="settings-sub">12 个角色 · 28 场对话</div>
+                  </div>
+                  <svg class="settings-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </div>
+              </div>
+
+              <div style="height: 100px;"></div>
+            </div>
+          </div>
+
+        </div><!-- /phone-screen-content -->
+
+        <!-- FAB (hidden on chat screen) -->
+        <button class="fab" id="fab" onclick="switchScreen(2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+          <button class="nav-item active" data-screen="1" onclick="switchScreen(1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            <span>对话</span>
+          </button>
+          <button class="nav-item" data-screen="3" onclick="switchScreen(3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            <span>角色</span>
+          </button>
+          <button class="nav-item" data-screen="4" onclick="switchScreen(4)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20M12 2a14.5 14.5 0 010 20M2 12h20"/></svg>
+            <span>世界观</span>
+          </button>
+          <button class="nav-item" data-screen="4" onclick="switchScreen(4)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            <span>设置</span>
+          </button>
+        </div>
+
+        <!-- Screen Dots -->
+        <div class="screen-dots" style="position: absolute; bottom: 0; left: 0; right: 0; background: transparent; pointer-events: none; padding: 6px 0;">
+          <button class="screen-dot active" onclick="switchScreen(1)" style="pointer-events: auto;"></button>
+          <button class="screen-dot" onclick="switchScreen(2)" style="pointer-events: auto;"></button>
+          <button class="screen-dot" onclick="switchScreen(3)" style="pointer-events: auto;"></button>
+          <button class="screen-dot" onclick="switchScreen(4)" style="pointer-events: auto;"></button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DESKTOP VIEW ==================== -->
+<div class="page" id="page-desktop">
+  <div class="desktop-stage">
+    <div class="desktop-frame">
+
+      <!-- Left Icon Sidebar -->
+      <div class="desktop-sidebar">
+        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--coral)); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; margin-bottom: 16px;">S</div>
+        <button class="desktop-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>
+        <button class="desktop-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></button>
+        <button class="desktop-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20M2 12h20"/></svg></button>
+        <div class="desktop-nav-spacer"></div>
+        <button class="desktop-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/></svg></button>
+      </div>
+
+      <!-- Conversation List Panel -->
+      <div class="desktop-list-panel">
+        <div class="desktop-list-header">
+          <div class="desktop-list-title">对话</div>
+          <button class="icon-btn" style="background: var(--primary); color: white;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
+        <div class="desktop-list-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" placeholder="搜索..." />
+        </div>
+        <div class="desktop-list-items">
+          <div class="conv-item" style="background: var(--primary-faint); border-left: 3px solid var(--primary);">
+            <div class="conv-avatar" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+            <div class="conv-body">
+              <div class="conv-top-row"><span class="conv-name">夜阑·古风剑客</span><span class="conv-time">14:32</span></div>
+              <div class="conv-preview"><em>*轻轻拔剑* 你...究竟是什么人？</em></div>
+            </div>
+          </div>
+          <div class="conv-item">
+            <div class="conv-avatar multi" style="background: linear-gradient(135deg, #FB7185, #F43F5E);">艾</div>
+            <div class="conv-body">
+              <div class="conv-top-row"><span class="conv-name">艾莉娅 & 林恩</span><span class="conv-time">13:15</span></div>
+              <div class="conv-preview">林恩：这个计划太冒险了...</div>
+            </div>
+          </div>
+          <div class="conv-item">
+            <div class="conv-avatar" style="background: linear-gradient(135deg, #8B5CF6, #A78BFA);">K</div>
+            <div class="conv-body">
+              <div class="conv-top-row"><span class="conv-name">K-07 仿生侦探</span><span class="conv-time">11:08</span></div>
+              <div class="conv-preview">案件分析已完成，嫌疑人锁定在三人之中。</div>
+            </div>
+          </div>
+          <div class="conv-item">
+            <div class="conv-avatar" style="background: linear-gradient(135deg, #F59E0B, #FBBF24);">苏</div>
+            <div class="conv-body">
+              <div class="conv-top-row"><span class="conv-name">苏菲亚·星辰法师</span><span class="conv-time">昨天</span></div>
+              <div class="conv-preview"><em>*法杖光芒闪烁* 我感应到了古老的魔力...</em></div>
+            </div>
+          </div>
+          <div class="conv-item">
+            <div class="conv-avatar" style="background: linear-gradient(135deg, #6366F1, #818CF8);">陆</div>
+            <div class="conv-body">
+              <div class="conv-top-row"><span class="conv-name">陆远·末世幸存者</span><span class="conv-time">昨天</span></div>
+              <div class="conv-preview">今天的补给站搜刮很顺利。</div>
+            </div>
+          </div>
+          <div class="conv-item">
+            <div class="conv-avatar" style="background: linear-gradient(135deg, #EC4899, #F472B6);">樱</div>
+            <div class="conv-body">
+              <div class="conv-top-row"><span class="conv-name">樱花·校园少女</span><span class="conv-time">7月3日</span></div>
+              <div class="conv-preview">放学后一起去图书馆吧！</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Panel -->
+      <div class="desktop-chat-panel">
+        <div class="desktop-chat-header">
+          <div class="chat-avatar" style="width: 40px; height: 40px; background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+          <div style="flex: 1;">
+            <div style="font-size: 16px; font-weight: 600; color: var(--text-primary);">夜阑·古风剑客</div>
+            <div style="font-size: 12px; color: var(--primary); display: flex; align-items: center; gap: 4px;"><span class="status-dot"></span>在线 · DeepSeek</div>
+          </div>
+          <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
+          <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></button>
+          <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+        </div>
+
+        <div class="desktop-chat-messages">
+          <div class="msg-date-sep">今天 14:20</div>
+
+          <div class="msg-row ai" style="max-width: 70%;">
+            <div class="msg-avatar" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+            <div>
+              <div class="msg-bubble">
+                <em>*月光下，剑身泛起寒光，夜阑缓缓转身，目光如刃*</em><br><br>
+                阁下深夜造访，想必不是来赏月的。<br>
+                <q>说吧，你的来意。</q>
+              </div>
+              <div class="msg-actions" style="opacity: 1;">
+                <button class="msg-action-btn">朗读</button>
+                <button class="msg-action-btn">复制</button>
+                <button class="msg-action-btn">编辑</button>
+              </div>
+              <div class="quick-replies">
+                <button class="quick-reply">我是来挑战你的</button>
+                <button class="quick-reply">只是路过</button>
+                <button class="quick-reply">你认错人了</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="msg-row user" style="max-width: 70%;">
+            <div class="msg-bubble">我听说你是江湖第一剑客，特来领教。</div>
+          </div>
+
+          <div class="msg-row ai" style="max-width: 70%;">
+            <div class="msg-avatar" style="background: linear-gradient(135deg, #0D9488, #14B8A6);">夜</div>
+            <div>
+              <div class="msg-bubble">
+                <em>*嘴角微扬，剑尖轻指*</em><br><br>
+                第一？不过是旁人给的虚名罢了。<br>
+                <q>但既然你来了，我便不让你白跑一趟。</q>
+              </div>
+              <div class="msg-actions" style="opacity: 1;">
+                <button class="msg-action-btn">朗读</button>
+                <button class="msg-action-btn">复制</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="desktop-chat-input">
+          <button class="chat-input-attach"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+          <textarea rows="1" placeholder="输入消息... (Shift+Enter 换行)"></textarea>
+          <button class="chat-input-send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DESIGN SYSTEM VIEW ==================== -->
+<div class="page" id="page-design">
+  <div class="ds-stage">
+    <div class="ds-hero">
+      <h1>Solace</h1>
+      <p>浅色 · 暖调 · 文学感 — 为沉浸式角色扮演而生</p>
+    </div>
+
+    <!-- Color System -->
+    <div class="ds-section">
+      <div class="ds-section-title">色彩系统</div>
+      <div class="ds-color-grid">
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #0D9488;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">Primary Teal</div><div class="ds-color-hex">#0D9488</div></div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #0F766E;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">Teal Hover</div><div class="ds-color-hex">#0F766E</div></div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #CCFBF1;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">Teal Soft</div><div class="ds-color-hex">#CCFBF1</div></div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #FB7185;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">Accent Coral</div><div class="ds-color-hex">#FB7185</div></div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #F59E0B;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">Accent Amber</div><div class="ds-color-hex">#F59E0B</div></div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #8B5CF6;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">AI Violet</div><div class="ds-color-hex">#8B5CF6</div></div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #F7F5F0; border-bottom: 1px solid #E7E5E0;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">Canvas</div><div class="ds-color-hex">#F7F5F0</div></div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #FFFFFF; border-bottom: 1px solid #E7E5E0;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">Surface</div><div class="ds-color-hex">#FFFFFF</div></div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #1C1917;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">Text Primary</div><div class="ds-color-hex">#1C1917</div></div>
+        </div>
+        <div class="ds-color-card">
+          <div class="ds-color-swatch" style="background: #57534E;"></div>
+          <div class="ds-color-info"><div class="ds-color-name">Text Secondary</div><div class="ds-color-hex">#57534E</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div class="ds-section">
+      <div class="ds-section-title">字体系统</div>
+      <div class="ds-typo-row">
+        <div class="ds-typo-label">Display</div>
+        <div class="ds-typo-sample" style="font-family: var(--font-serif); font-size: 32px; font-weight: 700;">沉浸式角色扮演</div>
+      </div>
+      <div class="ds-typo-row">
+        <div class="ds-typo-label">Heading</div>
+        <div class="ds-typo-sample" style="font-size: 22px; font-weight: 700;">对话列表</div>
+      </div>
+      <div class="ds-typo-row">
+        <div class="ds-typo-label">Body</div>
+        <div class="ds-typo-sample" style="font-size: 15px;">阁下深夜造访，想必不是来赏月的。</div>
+      </div>
+      <div class="ds-typo-row">
+        <div class="ds-typo-label">Caption</div>
+        <div class="ds-typo-sample" style="font-size: 12px; color: var(--text-tertiary);">14:32 · DeepSeek</div>
+      </div>
+      <div class="ds-typo-row">
+        <div class="ds-typo-label">Mono</div>
+        <div class="ds-typo-sample" style="font-family: var(--font-mono); font-size: 13px;">#0D9488</div>
+      </div>
+    </div>
+
+    <!-- Components -->
+    <div class="ds-section">
+      <div class="ds-section-title">组件展示</div>
+      <div class="ds-comp-grid">
+        <div class="ds-comp-card">
+          <div class="ds-comp-label">按钮</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+            <button class="ds-btn ds-btn-primary">Primary</button>
+            <button class="ds-btn ds-btn-coral">Coral</button>
+            <button class="ds-btn ds-btn-outline">Outline</button>
+            <button class="ds-btn ds-btn-ghost">Ghost</button>
+          </div>
+        </div>
+        <div class="ds-comp-card">
+          <div class="ds-comp-label">标签 Badge</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span class="ds-badge ds-badge-teal">在线</span>
+            <span class="ds-badge ds-badge-coral">3 条未读</span>
+            <span class="ds-badge ds-badge-amber">置顶</span>
+            <span class="ds-badge ds-badge-violet">AI 生成</span>
+            <span class="ds-badge ds-badge-gray">已归档</span>
+          </div>
+        </div>
+        <div class="ds-comp-card">
+          <div class="ds-comp-label">开关 Toggle</div>
+          <div style="display: flex; gap: 16px; align-items: center;">
+            <button class="toggle on"><div class="toggle-knob"></div></button>
+            <button class="toggle"><div class="toggle-knob"></div></button>
+          </div>
+        </div>
+        <div class="ds-comp-card">
+          <div class="ds-comp-label">输入框</div>
+          <div class="search-bar" style="margin: 0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" placeholder="搜索..." />
+          </div>
+        </div>
+        <div class="ds-comp-card">
+          <div class="ds-comp-label">用户气泡</div>
+          <div class="msg-bubble" style="background: linear-gradient(135deg, var(--primary), #14B8A6); color: white; border-radius: var(--radius-lg); border-bottom-right-radius: 4px;">特来领教。</div>
+        </div>
+        <div class="ds-comp-card">
+          <div class="ds-comp-label">AI 气泡</div>
+          <div class="msg-bubble" style="background: var(--bg-surface); border: 1px solid var(--border-light); border-bottom-left-radius: 4px;"><em>*拔剑*</em> 你来了。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Design Principles -->
+    <div class="ds-section">
+      <div class="ds-section-title">设计原则</div>
+      <div class="ds-principle-grid">
+        <div class="ds-principle">
+          <div class="ds-principle-icon" style="background: var(--primary-soft);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+          <h4>温暖纸感</h4>
+          <p>暖白底色 (#F7F5F0) 营造书页质感，降低屏幕灼眼感，适合长时间阅读和创作。</p>
+        </div>
+        <div class="ds-principle">
+          <div class="ds-principle-icon" style="background: var(--coral-soft);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+          <h4>情感色彩</h4>
+          <p>Teal + Coral 双色系：Teal 传递冷静理性，Coral 注入情感温度，契合角色扮演的情绪场景。</p>
+        </div>
+        <div class="ds-principle">
+          <div class="ds-principle-icon" style="background: var(--amber-soft);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+          <h4>文学衬线</h4>
+          <p>标题使用 Georgia 衬线体，呼应"故事讲述"的产品本质，与正文无衬线体形成优雅对比。</p>
+        </div>
+        <div class="ds-principle">
+          <div class="ds-principle-icon" style="background: var(--violet-soft);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+          <h4>柔和层次</h4>
+          <p>用暖色阴影 (rgba(60,50,35)) 替代冷色边框，卡片浮于纸面，层次自然不生硬。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aurora vs Solace Comparison -->
+    <div class="ds-section">
+      <div class="ds-section-title">方案对比</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div style="padding: 20px; background: #08080C; border-radius: var(--radius-lg); color: #F8FAFC;">
+          <div style="font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: #7C6BF0;">Aurora (方案 A)</div>
+          <div style="font-size: 13px; margin-top: 8px; line-height: 1.7; color: #CBD5E1;">
+            • 暗色背景 #08080C<br>
+            • 紫罗兰主色 #7C6BF0<br>
+            • 霓虹光晕指示器<br>
+            • 科技感 · 神秘氛围<br>
+            • 适合夜间/沉浸使用
+          </div>
+        </div>
+        <div style="padding: 20px; background: var(--bg-surface); border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
+          <div style="font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--primary);">Solace (方案 B)</div>
+          <div style="font-size: 13px; margin-top: 8px; line-height: 1.7; color: var(--text-secondary);">
+            • 暖白背景 #F7F5F0<br>
+            • Teal 主色 #0D9488<br>
+            • 柔和阴影 + 药丸指示<br>
+            • 文学感 · 温暖亲和<br>
+            • 适合日间/长时间阅读
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// --- View Switching ---
+function switchView(view) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.top-tab').forEach(t => t.classList.remove('active'));
+  if (view === 'mobile') {
+    document.getElementById('page-mobile').classList.add('active');
+    document.querySelectorAll('.top-tab')[0].classList.add('active');
+  } else if (view === 'desktop') {
+    document.getElementById('page-desktop').classList.add('active');
+    document.querySelectorAll('.top-tab')[1].classList.add('active');
+  } else if (view === 'design') {
+    document.getElementById('page-design').classList.add('active');
+    document.querySelectorAll('.top-tab')[2].classList.add('active');
+  }
+}
+
+// --- Mobile Screen Switching ---
+function switchScreen(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + n).classList.add('active');
+
+  // Update nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    const screen = parseInt(item.dataset.screen);
+    item.classList.toggle('active', screen === n);
+  });
+
+  // Update dots
+  document.querySelectorAll('.screen-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === n - 1);
+  });
+
+  // Show/hide FAB (hide on chat screen)
+  const fab = document.getElementById('fab');
+  fab.style.display = n === 2 ? 'none' : 'flex';
+
+  // Scroll to top
+  document.querySelector('.phone-screen-content').scrollTop = 0;
+}
+
+// --- Chip toggles ---
+document.querySelectorAll('.filter-chips').forEach(container => {
+  container.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      container.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+});
+
+// --- Quick reply click ---
+document.querySelectorAll('.quick-reply').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = document.querySelector('.chat-input-field');
+    if (input) {
+      input.value = btn.textContent;
+      input.focus();
+    }
+  });
+});
+</script>
+
+</body>
+</html>
