@@ -163,7 +163,7 @@ class CharacterCardParser {
       name: json['name'] as String? ?? '未命名角色',
       description: _cleanField(json['description']),
       personality: _cleanField(json['personality']),
-      backstory: _cleanField(json['mes_example']),
+      backstory: _cleanField(json['scenario']),
       speakingStyle: null,
       systemPrompt: _cleanField(json['system_prompt']),
       firstMessage: _cleanField(json['first_mes']),

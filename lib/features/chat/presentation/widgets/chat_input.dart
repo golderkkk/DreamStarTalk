@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:dream_startalk/core/theme/aurora_theme.dart';
 import '../../domain/entities/conversation.dart';
 
@@ -62,16 +61,14 @@ class _ChatInputState extends ConsumerState<ChatInput> {
 
   void _onTextChanged() {
     final isComposing = _controller.value.composing.isValid;
-    _hasText = _controller.text.trim().isNotEmpty;
+    final newHasText = _controller.text.trim().isNotEmpty;
 
-    // 输入法组合中只更新 _hasText 但不触发 setState，防止键盘异常收起
+    // 输入法组合中不触发任何 setState，防止键盘异常收起
     if (isComposing) {
+      _hasText = newHasText;
       _wasComposing = true;
       return;
     }
-
-    // 组合结束，刷新 UI
-    _wasComposing = false;
 
     // @ 在文本中 -> 自动识别角色
     final text = _controller.text;
@@ -85,8 +82,13 @@ class _ChatInputState extends ConsumerState<ChatInput> {
           .toList();
     }
 
-    // setState 只在必要时触发
-    setState(() => _filteredCharacters = newFiltered);
+    // 仅在状态真正变化时才 setState，避免不必要的重建导致键盘收起
+    final hasChanged = newHasText != _hasText || newFiltered.length != _filteredCharacters.length ||
+        (newFiltered.isNotEmpty && _filteredCharacters.isNotEmpty && newFiltered.first.id != _filteredCharacters.first.id);
+    _hasText = newHasText;
+    _wasComposing = false;
+    _filteredCharacters = newFiltered;
+    if (hasChanged) setState(() {});
   }
 
   void _selectCharacter(CharacterReference character) {
@@ -352,33 +354,6 @@ class _ChatInputState extends ConsumerState<ChatInput> {
     );
   }
 
-  void _showAttachmentOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AuroraColors.bg4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AuroraRadius.xxl))),
-      builder: (context) => SafeArea(child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 36, height: 4, margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(color: AuroraColors.text4, borderRadius: BorderRadius.circular(2))),
-          _buildAttachmentOption(context, Icons.description_outlined, '发送文件名（仅文本）', AuroraColors.info,
-              () { Navigator.pop(context); _pickFile(); }),
-        ]),
-      )),
-    );
-  }
-
-  Widget _buildAttachmentOption(BuildContext context, IconData icon, String label, Color color, VoidCallback onTap) {
-    return ListTile(
-      leading: Container(width: 40, height: 40, decoration: BoxDecoration(
-          color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(AuroraRadius.sm)),
-          child: Icon(icon, color: color, size: 22)),
-      title: Text(label, style: const TextStyle(color: AuroraColors.text1)),
-      onTap: onTap,
-    );
-  }
-
   /// 显示 Lore 触发提示
   Widget _buildLoreHints() {
     final text = _controller.text.toLowerCase();
@@ -393,26 +368,5 @@ class _ChatInputState extends ConsumerState<ChatInput> {
             style: TextStyle(fontSize: 10, color: AuroraColors.cyan.withOpacity(0.5), fontStyle: FontStyle.italic)),
       ]),
     );
-  }
-
-  Future<void> _pickFile() async {
-    try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: false);
-      if (result != null && result.files.isNotEmpty) {
-        final file = result.files.first;
-        if (file.path != null) {
-          widget.onSend('📎 ${file.name}', targetCharacterId: _selectedCharacterId);
-          if (mounted) {
-            ScaffoldMessenger.of(context).clearSnackBars();
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('文件已发送: ${file.name}')));
-          }
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('选择文件失败')));
-      }
-    }
   }
 }

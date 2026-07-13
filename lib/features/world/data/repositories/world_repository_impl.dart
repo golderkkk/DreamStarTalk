@@ -306,10 +306,10 @@ class WorldRepositoryImpl implements WorldRepository {
   }
   
   @override
-  Stream<List<World>> watchWorlds() {
-    return _localDataSource.watch().map((_) {
-      // 简化实现，实际应该异步获取
-      return [];
-    });
+  Stream<List<World>> watchWorlds() async* {
+    yield await getWorlds();
+    await for (final _ in _localDataSource.watch()) {
+      yield await getWorlds();
+    }
   }
 }

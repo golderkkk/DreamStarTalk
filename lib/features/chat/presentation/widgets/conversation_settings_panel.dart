@@ -30,7 +30,7 @@ class _ConversationSettingsPanelState extends State<ConversationSettingsPanel> {
           _slider('温度 (Temperature)', _s.temperature, 0, 2, (v) => _update(_s.copyWith(temperature: v))),
           _slider('Top P 采样', _s.topP, 0, 1, (v) => _update(_s.copyWith(topP: v))),
           _sliderInt('最大 Token', _s.maxTokens, 256, 8192, (v) => _update(_s.copyWith(maxTokens: v))),
-          _sliderInt('上下文窗口', _s.contextWindowSize, 5, 50, (v) => _update(_s.copyWith(contextWindowSize: v))),
+          _sliderInt('上下文窗口', _s.contextWindowSize.clamp(512, 32768), 512, 32768, (v) => _update(_s.copyWith(contextWindowSize: v)), divisions: 64),
         ])),
       ]),
     );
@@ -43,10 +43,10 @@ class _ConversationSettingsPanelState extends State<ConversationSettingsPanel> {
     ]);
   }
 
-  Widget _sliderInt(String label, int val, int min, int max, Function(int) onChanged) {
+  Widget _sliderInt(String label, int val, int min, int max, Function(int) onChanged, {int? divisions}) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(label, style: const TextStyle(fontSize: 14, color: AuroraColors.text2)), Text('$val', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AuroraColors.primaryGlow))]),
-      Slider(value: val.toDouble(), min: min.toDouble(), max: max.toDouble(), divisions: max - min, onChanged: (v) => onChanged(v.toInt()), activeColor: AuroraColors.primary),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(label, style: const TextStyle(fontSize: 14, color: AuroraColors.text2)), Text(max > 1000 ? '${(val / 1000).toStringAsFixed(1)}K' : '$val', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AuroraColors.primaryGlow))]),
+      Slider(value: val.toDouble(), min: min.toDouble(), max: max.toDouble(), divisions: divisions ?? (max - min), onChanged: (v) => onChanged(v.toInt()), activeColor: AuroraColors.primary),
     ]);
   }
 }

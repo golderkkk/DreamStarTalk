@@ -26,13 +26,19 @@ class CharacterReference {
     'speakingStyle': speakingStyle,
   };
 
-  factory CharacterReference.fromJson(Map<String, dynamic> json) => CharacterReference(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    avatar: json['avatar'] as String?,
-    personality: json['personality'] as String?,
-    speakingStyle: json['speakingStyle'] as String?,
-  );
+  factory CharacterReference.fromJson(Map<String, dynamic> json) {
+    try {
+      return CharacterReference(
+        id: (json['id'] ?? '').toString(),
+        name: (json['name'] ?? '').toString(),
+        avatar: json['avatar']?.toString(),
+        personality: json['personality']?.toString(),
+        speakingStyle: json['speakingStyle']?.toString(),
+      );
+    } catch (_) {
+      return CharacterReference(id: (json['id'] ?? '').toString(), name: (json['name'] ?? '').toString());
+    }
+  }
 }
 
 /// 对话设置
@@ -171,6 +177,11 @@ class ConversationSettings {
   }
 }
 
+DateTime? _tryParseDate(dynamic v) {
+  if (v == null) return null;
+  try { return DateTime.parse(v.toString()); } catch (_) { return null; }
+}
+
 /// 对话实体
 class Conversation {
   final String id;
@@ -228,38 +239,43 @@ class Conversation {
     'updatedAt': updatedAt?.toIso8601String(),
   };
 
-  factory Conversation.fromJson(Map<String, dynamic> json) => Conversation(
-    id: json['id'] as String,
-    characterId: json['characterId'] as String,
-    characterName: json['characterName'] as String?,
-    characterAvatar: json['characterAvatar'] as String?,
-    additionalCharacters: (json['additionalCharacters'] as List<dynamic>?)
-        ?.map((e) => CharacterReference.fromJson(e as Map<String, dynamic>))
-        .toList() ?? [],
-    worldId: json['worldId'] as String?,
-    worldName: json['worldName'] as String?,
-    protagonist: json['protagonist'] != null
-        ? Protagonist.fromJson(json['protagonist'] as Map<String, dynamic>)
-        : null,
-    messages: (json['messages'] as List<dynamic>?)
-        ?.map((e) => Message.fromJson(e as Map<String, dynamic>))
-        .toList() ?? [],
-    settings: json['settings'] != null
-        ? ConversationSettings.fromJson(json['settings'] as Map<String, dynamic>)
-        : const ConversationSettings(),
-    title: json['title'] as String?,
-    summary: json['summary'] as String?,
-    messageCount: json['messageCount'] as int? ?? 0,
-    lastMessageAt: json['lastMessageAt'] != null
-        ? DateTime.parse(json['lastMessageAt'] as String)
-        : null,
-    createdAt: json['createdAt'] != null
-        ? DateTime.parse(json['createdAt'] as String)
-        : null,
-    updatedAt: json['updatedAt'] != null
-        ? DateTime.parse(json['updatedAt'] as String)
-        : null,
-  );
+  factory Conversation.fromJson(Map<String, dynamic> json) {
+    try {
+      return Conversation(
+        id: (json['id'] ?? '').toString(),
+        characterId: (json['characterId'] ?? '').toString(),
+        characterName: json['characterName']?.toString(),
+        characterAvatar: json['characterAvatar']?.toString(),
+        additionalCharacters: (json['additionalCharacters'] as List?)
+            ?.whereType<Map>()
+            .map((e) => CharacterReference.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ?? [],
+        worldId: json['worldId']?.toString(),
+        worldName: json['worldName']?.toString(),
+        protagonist: json['protagonist'] is Map
+            ? Protagonist.fromJson(Map<String, dynamic>.from(json['protagonist'] as Map))
+            : null,
+        messages: (json['messages'] as List?)
+            ?.whereType<Map>()
+            .map((e) => Message.fromJson(Map<String, dynamic>.from(e)))
+            .toList() ?? [],
+        settings: json['settings'] is Map
+            ? ConversationSettings.fromJson(Map<String, dynamic>.from(json['settings'] as Map))
+            : const ConversationSettings(),
+        title: json['title']?.toString(),
+        summary: json['summary']?.toString(),
+        messageCount: (json['messageCount'] as num?)?.toInt() ?? 0,
+        lastMessageAt: _tryParseDate(json['lastMessageAt']),
+        createdAt: _tryParseDate(json['createdAt']),
+        updatedAt: _tryParseDate(json['updatedAt']),
+      );
+    } catch (_) {
+      return Conversation(
+        id: (json['id'] ?? '').toString(),
+        characterId: (json['characterId'] ?? '').toString(),
+      );
+    }
+  }
 
   Conversation copyWith({
     String? id,

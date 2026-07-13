@@ -510,6 +510,4 @@ class _AIServicePageState extends ConsumerState<AIServicePage> {
       case ProviderType.gateway: return Icons.language;
     }
   }
-
-  List<AIModel> _getModelsForProvider(ProviderType type) => AIServiceFactory.defaultModelsFor(type);
 }

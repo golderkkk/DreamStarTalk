@@ -266,7 +266,7 @@ class _WorldEditPageState extends ConsumerState<WorldEditPage> with SingleTicker
                     Text(node.type.label, style: const TextStyle(fontSize: 11, color: AuroraColors.text3)),
                   ])),
                   IconButton(icon: const Icon(Icons.edit, size: 18, color: AuroraColors.primary), onPressed: () { Navigator.pop(_); _showNodeEditor(context, sl, node, notifier); }),
-                  IconButton(icon: const Icon(Icons.delete, size: 18, color: AuroraColors.error), onPressed: () { ss(() { sl.nodes.removeAt(i); notifier.updateStoryline(sl); }); }),
+                  IconButton(icon: const Icon(Icons.delete, size: 18, color: AuroraColors.error), onPressed: () { final updated = List<StoryNode>.from(sl.nodes)..removeAt(i); notifier.updateStoryline(sl.copyWith(nodes: updated)); }),
                 ]),
               );
             }),

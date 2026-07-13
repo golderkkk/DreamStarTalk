@@ -102,13 +102,7 @@ class ChatService {
       }
     }
   }
-  
-  /// 获取默认模型
-  String _getDefaultModel() {
-    // 这里应该从配置中获取默认模型
-    return 'mimo-v2.5-pro';
-  }
-  
+
   /// 验证 NSFW 密码
   bool verifyNSFWPassword(Conversation conversation, String password) {
     if (!conversation.settings.nsfwPasswordProtected) {

@@ -1,3 +1,8 @@
+DateTime? _tryParseDate(dynamic v) {
+  if (v == null) return null;
+  try { return DateTime.parse(v.toString()); } catch (_) { return null; }
+}
+
 /// 世界实体
 class World {
   final String id;
@@ -49,34 +54,39 @@ class World {
     'updatedAt': updatedAt?.toIso8601String(),
   };
 
-  factory World.fromJson(Map<String, dynamic> json) => World(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    coverImage: json['coverImage'] as String?,
-    description: json['description'] as String?,
-    rules: json['rules'] as String?,
-    history: json['history'] as String?,
-    scenes: (json['scenes'] as List<dynamic>?)
-        ?.map((s) => Scene.fromJson(s as Map<String, dynamic>))
-        .toList() ?? [],
-    npcs: (json['npcs'] as List<dynamic>?)
-        ?.map((n) => NPC.fromJson(n as Map<String, dynamic>))
-        .toList() ?? [],
-    storylines: (json['storylines'] as List<dynamic>?)
-        ?.map((s) => Storyline.fromJson(s as Map<String, dynamic>))
-        .toList() ?? [],
-    tags: (json['tags'] as List<dynamic>?)
-        ?.map((e) => e as String)
-        .toList() ?? [],
-    isFavorite: json['isFavorite'] as bool? ?? false,
-    currentSceneId: json['currentSceneId'] as String?,
-    createdAt: json['createdAt'] != null
-        ? DateTime.parse(json['createdAt'] as String)
-        : null,
-    updatedAt: json['updatedAt'] != null
-        ? DateTime.parse(json['updatedAt'] as String)
-        : null,
-  );
+  factory World.fromJson(Map<String, dynamic> json) {
+    try {
+      return World(
+        id: (json['id'] ?? '').toString(),
+        name: (json['name'] ?? '').toString(),
+        coverImage: json['coverImage']?.toString(),
+        description: json['description']?.toString(),
+        rules: json['rules']?.toString(),
+        history: json['history']?.toString(),
+        scenes: (json['scenes'] as List?)
+            ?.whereType<Map>()
+            .map((s) => Scene.fromJson(Map<String, dynamic>.from(s)))
+            .toList() ?? [],
+        npcs: (json['npcs'] as List?)
+            ?.whereType<Map>()
+            .map((n) => NPC.fromJson(Map<String, dynamic>.from(n)))
+            .toList() ?? [],
+        storylines: (json['storylines'] as List?)
+            ?.whereType<Map>()
+            .map((s) => Storyline.fromJson(Map<String, dynamic>.from(s)))
+            .toList() ?? [],
+        tags: (json['tags'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ?? [],
+        isFavorite: json['isFavorite'] == true,
+        currentSceneId: json['currentSceneId']?.toString(),
+        createdAt: _tryParseDate(json['createdAt']),
+        updatedAt: _tryParseDate(json['updatedAt']),
+      );
+    } catch (_) {
+      return World(id: (json['id'] ?? '').toString(), name: (json['name'] ?? '未知').toString());
+    }
+  }
 
   World copyWith({
     String? id,
@@ -149,19 +159,25 @@ class Scene {
     'metadata': metadata,
   };
 
-  factory Scene.fromJson(Map<String, dynamic> json) => Scene(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    description: json['description'] as String?,
-    image: json['image'] as String?,
-    time: json['time'] as String?,
-    weather: json['weather'] as String?,
-    atmosphere: json['atmosphere'] as String?,
-    npcs: (json['npcs'] as List<dynamic>?)
-        ?.map((e) => e as String)
-        .toList() ?? [],
-    metadata: json['metadata'] as Map<String, dynamic>?,
-  );
+  factory Scene.fromJson(Map<String, dynamic> json) {
+    try {
+      return Scene(
+        id: (json['id'] ?? '').toString(),
+        name: (json['name'] ?? '').toString(),
+        description: json['description']?.toString(),
+        image: json['image']?.toString(),
+        time: json['time']?.toString(),
+        weather: json['weather']?.toString(),
+        atmosphere: json['atmosphere']?.toString(),
+        npcs: (json['npcs'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ?? [],
+        metadata: json['metadata'] is Map ? Map<String, dynamic>.from(json['metadata'] as Map) : null,
+      );
+    } catch (_) {
+      return Scene(id: (json['id'] ?? '').toString(), name: (json['name'] ?? '').toString());
+    }
+  }
 
   Scene copyWith({
     String? id,
@@ -227,21 +243,27 @@ class NPC {
     'relationships': relationships,
   };
 
-  factory NPC.fromJson(Map<String, dynamic> json) => NPC(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    avatar: json['avatar'] as String?,
-    description: json['description'] as String?,
-    personality: json['personality'] as String?,
-    backstory: json['backstory'] as String?,
-    speakingStyle: json['speakingStyle'] as String?,
-    relationship: json['relationship'] as String?,
-    tags: (json['tags'] as List<dynamic>?)
-        ?.map((e) => e as String)
-        .toList() ?? [],
-    relationships: (json['relationships'] as Map<String, dynamic>?)
-        ?.map((k, v) => MapEntry(k, v as String)),
-  );
+  factory NPC.fromJson(Map<String, dynamic> json) {
+    try {
+      return NPC(
+        id: (json['id'] ?? '').toString(),
+        name: (json['name'] ?? '').toString(),
+        avatar: json['avatar']?.toString(),
+        description: json['description']?.toString(),
+        personality: json['personality']?.toString(),
+        backstory: json['backstory']?.toString(),
+        speakingStyle: json['speakingStyle']?.toString(),
+        relationship: json['relationship']?.toString(),
+        tags: (json['tags'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ?? [],
+        relationships: (json['relationships'] as Map<String, dynamic>?)
+            ?.map((k, v) => MapEntry(k.toString(), v.toString())),
+      );
+    } catch (_) {
+      return NPC(id: (json['id'] ?? '').toString(), name: (json['name'] ?? '').toString());
+    }
+  }
 
   NPC copyWith({
     String? id,
@@ -326,23 +348,26 @@ class Storyline {
     'completedAt': completedAt?.toIso8601String(),
   };
 
-  factory Storyline.fromJson(Map<String, dynamic> json) => Storyline(
-    id: json['id'] as String,
-    title: json['title'] as String,
-    description: json['description'] as String?,
-    type: StorylineType.values.byName(json['type'] as String? ?? 'main'),
-    status: StorylineStatus.values.byName(json['status'] as String? ?? 'active'),
-    nodes: (json['nodes'] as List<dynamic>?)
-        ?.map((n) => StoryNode.fromJson(n as Map<String, dynamic>))
-        .toList() ?? [],
-    currentNodeId: json['currentNodeId'] as String?,
-    startedAt: json['startedAt'] != null
-        ? DateTime.parse(json['startedAt'] as String)
-        : null,
-    completedAt: json['completedAt'] != null
-        ? DateTime.parse(json['completedAt'] as String)
-        : null,
-  );
+  factory Storyline.fromJson(Map<String, dynamic> json) {
+    try {
+      return Storyline(
+        id: (json['id'] ?? '').toString(),
+        title: (json['title'] ?? '').toString(),
+        description: json['description']?.toString(),
+        type: StorylineType.values.asNameMap()[json['type']?.toString()] ?? StorylineType.main,
+        status: StorylineStatus.values.asNameMap()[json['status']?.toString()] ?? StorylineStatus.active,
+        nodes: (json['nodes'] as List?)
+            ?.whereType<Map>()
+            .map((n) => StoryNode.fromJson(Map<String, dynamic>.from(n)))
+            .toList() ?? [],
+        currentNodeId: json['currentNodeId']?.toString(),
+        startedAt: _tryParseDate(json['startedAt']),
+        completedAt: _tryParseDate(json['completedAt']),
+      );
+    } catch (_) {
+      return Storyline(id: (json['id'] ?? '').toString(), title: (json['title'] ?? '').toString());
+    }
+  }
 
   Storyline copyWith({
     String? id,
@@ -417,19 +442,26 @@ class StoryNode {
     'effects': effects,
   };
 
-  factory StoryNode.fromJson(Map<String, dynamic> json) => StoryNode(
-    id: json['id'] as String,
-    title: json['title'] as String,
-    description: json['description'] as String?,
-    content: json['content'] as String?,
-    type: StoryNodeType.values.byName(json['type'] as String? ?? 'dialogue'),
-    choices: (json['choices'] as List<dynamic>?)
-        ?.map((c) => StoryChoice.fromJson(c as Map<String, dynamic>))
-        .toList() ?? [],
-    nextNodeId: json['nextNodeId'] as String?,
-    conditions: json['conditions'] as Map<String, dynamic>?,
-    effects: json['effects'] as Map<String, dynamic>?,
-  );
+  factory StoryNode.fromJson(Map<String, dynamic> json) {
+    try {
+      return StoryNode(
+        id: (json['id'] ?? '').toString(),
+        title: (json['title'] ?? '').toString(),
+        description: json['description']?.toString(),
+        content: json['content']?.toString(),
+        type: StoryNodeType.values.asNameMap()[json['type']?.toString()] ?? StoryNodeType.dialogue,
+        choices: (json['choices'] as List?)
+            ?.whereType<Map>()
+            .map((c) => StoryChoice.fromJson(Map<String, dynamic>.from(c)))
+            .toList() ?? [],
+        nextNodeId: json['nextNodeId']?.toString(),
+        conditions: json['conditions'] is Map ? Map<String, dynamic>.from(json['conditions'] as Map) : null,
+        effects: json['effects'] is Map ? Map<String, dynamic>.from(json['effects'] as Map) : null,
+      );
+    } catch (_) {
+      return StoryNode(id: (json['id'] ?? '').toString(), title: (json['title'] ?? '').toString());
+    }
+  }
 }
 
 /// 剧情选择
@@ -459,14 +491,20 @@ class StoryChoice {
     'effects': effects,
   };
 
-  factory StoryChoice.fromJson(Map<String, dynamic> json) => StoryChoice(
-    id: json['id'] as String,
-    text: json['text'] as String,
-    description: json['description'] as String?,
-    nextNodeId: json['nextNodeId'] as String?,
-    conditions: json['conditions'] as Map<String, dynamic>?,
-    effects: json['effects'] as Map<String, dynamic>?,
-  );
+  factory StoryChoice.fromJson(Map<String, dynamic> json) {
+    try {
+      return StoryChoice(
+        id: (json['id'] ?? '').toString(),
+        text: (json['text'] ?? '').toString(),
+        description: json['description']?.toString(),
+        nextNodeId: json['nextNodeId']?.toString(),
+        conditions: json['conditions'] is Map ? Map<String, dynamic>.from(json['conditions'] as Map) : null,
+        effects: json['effects'] is Map ? Map<String, dynamic>.from(json['effects'] as Map) : null,
+      );
+    } catch (_) {
+      return StoryChoice(id: (json['id'] ?? '').toString(), text: (json['text'] ?? '').toString());
+    }
+  }
 }
 
 /// World 扩展方法

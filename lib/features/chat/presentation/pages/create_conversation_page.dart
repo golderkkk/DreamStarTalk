@@ -34,6 +34,11 @@ class _CreateConversationPageState extends ConsumerState<CreateConversationPage>
 
   @override void initState() {
     super.initState();
+    // 加载角色卡和世界观列表
+    Future.microtask(() {
+      ref.read(characterListProvider.notifier).loadCharacters();
+      ref.read(worldListProvider.notifier).loadWorlds();
+    });
     Future.microtask(() async {
       final charId = ref.read(preselectedCharacterIdProvider);
       if (charId != null) {

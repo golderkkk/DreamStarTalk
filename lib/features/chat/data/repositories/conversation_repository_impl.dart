@@ -241,11 +241,11 @@ class ConversationRepositoryImpl implements ConversationRepository {
   }
   
   @override
-  Stream<List<Conversation>> watchConversations({String? characterId}) {
-    return _localDataSource.watch().map((_) {
-      // 这里简化实现，实际应该异步获取
-      return [];
-    });
+  Stream<List<Conversation>> watchConversations({String? characterId}) async* {
+    yield await getConversations(characterId: characterId);
+    await for (final _ in _localDataSource.watch()) {
+      yield await getConversations(characterId: characterId);
+    }
   }
   
   /// 生成对话标题

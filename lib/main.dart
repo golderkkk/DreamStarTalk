@@ -13,13 +13,17 @@ Box? boxNPCLibrary;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
 
-  boxCharacters = await Hive.openBox('characters');
-  boxWorlds = await Hive.openBox('worlds');
-  boxConversations = await Hive.openBox('conversations');
-  boxAIProviders = await Hive.openBox('ai_providers');
-  boxNPCLibrary = await Hive.openBox('npc_library');
+  try {
+    await Hive.initFlutter();
+    boxCharacters = await Hive.openBox('characters');
+    boxWorlds = await Hive.openBox('worlds');
+    boxConversations = await Hive.openBox('conversations');
+    boxAIProviders = await Hive.openBox('ai_providers');
+    boxNPCLibrary = await Hive.openBox('npc_library');
+  } catch (e) {
+    debugPrint('Hive 初始化失败: $e');
+  }
 
   Logger.init();
 

@@ -304,6 +304,4 @@ class _ModelConfigPageState extends ConsumerState<ModelConfigPage> {
       ),
     );
   }
-
-  List<AIModel> _getModelsForProvider(ProviderType type) => AIServiceFactory.defaultModelsFor(type);
 }
